@@ -23,6 +23,7 @@ export default class User extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
       getParam: PropTypes.func,
+      navigate: PropTypes.func,
     }).isRequired,
   };
 
@@ -49,7 +50,7 @@ export default class User extends Component {
     this.setState({ stars: response.data, loading: false });
   }
 
-  // Addition of starred repositories when users reach the page
+  // Addition of starred repositories when users reach the page end
   loadMore = async () => {
     const { navigation } = this.props;
     const user = navigation.getParam("user");
@@ -82,6 +83,12 @@ export default class User extends Component {
     this.setState({ stars: response.data, refreshing: false });
   };
 
+  renderRepoDetails = repo => {
+    const { navigation } = this.props;
+    console.tron.log(repo);
+    navigation.navigate("Repo", { repo });
+  };
+
   render() {
     const { navigation } = this.props;
     const { stars, loading, moreRepos, refreshing } = this.state;
@@ -101,8 +108,8 @@ export default class User extends Component {
             <ActivityIndicator color="#7159c1" size="large" />
           ) : (
             <Stars
-              onRefresh={this.refreshList} // Função dispara quando o usuário arrasta a lista pra baixo
-              refreshing={refreshing} // Variável que armazena um estado true/false que representa se a lista está atualizando
+              onRefresh={this.refreshList} // Triggered when user pulls down the page to refresh
+              refreshing={refreshing} // Represents if list is updating
               onEndReachedThreshold={0.2} // The list starts to load more items when the final 20% is reached
               onEndReached={moreRepos && this.loadMore} // Function to load more items
               data={stars}
@@ -111,7 +118,9 @@ export default class User extends Component {
                 <Starred>
                   <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
                   <Info>
-                    <Title>{item.name}</Title>
+                    <Title onPress={() => this.renderRepoDetails(item)}>
+                      {item.name}
+                    </Title>
                     <Author>{item.owner.login}</Author>
                   </Info>
                 </Starred>
